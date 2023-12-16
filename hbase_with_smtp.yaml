@@ -1,0 +1,28 @@
+- hosts: '{{ host }}'
+  tasks:
+    - name: Execute jps command inside container
+      command: kubectl exec hbase-clu1-hadoop-regionserver-{{ item }} -- jps
+      register: jps_output
+      with_sequence: start=0 end=9
+      ignore_errors: true
+
+    - name: Check for HRegionServer process
+      command: echo "HRegionServer process not found. Take appropriate action."
+      when: "'HRegionServer' not in item.stdout"
+      with_items: "{{ jps_output.results }}"
+
+    - name: Sending an e-mail using StartTLS, remote server, custom EHLO
+      community.general.mail:
+        host: smtp.safaricomet.net
+        to: ephrem.sisay@partner.safaricom.et
+        subject: Ansible-report
+        body: "RegionServer is down. Take appropriate action."
+        secure: never
+      
+    - name: Start RegionServer
+      command: kubectl exec pods/hbase-clu1-hadoop-regionserver-{{ item.item }}  -- /opt/hbase/bin/hbase-daemon.sh start regionserver
+      when: "'HRegionServer' not in item.stdout"
+      with_items: "{{ jps_output.results }}"
+
+
+

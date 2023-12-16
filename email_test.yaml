@@ -1,0 +1,17 @@
+ - name: Set egress IP address
+      set_fact:
+        egress_ip: "10.4.44.11"
+ - name: Send email
+   mail:
+     host: smtp.example.com
+     port: 25
+     from: sender@example.com
+     to: recipient@example.com
+     subject: "Test Email"
+     body: "This is a test email sent via Ansible."
+     local_ip: "{{ egress_ip }}"
+   register: email_result
+
+ - name: Display email result
+   debug:
+     var: email_result

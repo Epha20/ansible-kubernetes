@@ -1,0 +1,20 @@
+- hosts: '{{ host }}'
+  tasks:
+    - name: Set egress IP address
+      set_fact:
+        egress_ip: "10.4.44.11"  # Specify the desired egress IP address
+
+    - name: Send email
+      community.general.mail:
+        host: smtp.safaricomet.net
+        port: 25
+        from: Bigdata.Insights@safaricom.et
+        to: ephrem.sisay@partner.safaricom.et
+        subject: "Test Email"
+        body: "This is a test email sent via Ansible."
+        local_ip: "{{ egress_ip }}"
+      register: email_result
+
+    - name: Display email result
+      debug:
+        var: email_result

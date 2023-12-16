@@ -1,0 +1,2 @@
+[domain]
+10.4.74.130 ansible_ssh_host=10.4.24.21 ansible_ssh_user=ephrem.sisay

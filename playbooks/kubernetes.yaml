@@ -1,0 +1,39 @@
+---
+- hosts: '{{ host }}'
+  tasks:
+  - name: "Create a pod"
+    k8s:
+      state: present
+      namespace: et01-tkg-bigdata-prod
+      src: pod.yaml 
+  - name: "Create a k8s namespace"
+    k8s:
+      name: epha
+      api_version: v1
+      kind: Namespace
+      state: present 
+  - name: copying file with playbook
+    copy:
+      src: deployment.yaml
+      dest: ../k8s/deployment.yaml
+  - name: Copy file to pod
+    command: kubectl cp ../k8s/deployment.yaml nginx:/opt/deployment.yaml
+  - name: run python script
+    command: python3 test.py
+    register: python_result
+  - name: display python script result
+    debug:
+     var: python_result.stdout
+  - name: Execute HBase RegionServer status command
+    command: kubectl exec pods/hadoop-hadoop-hdfs-dn-0 -c hbase-regionserver -- jps
+    register: regionserver_status
+    ignore_errors: true
+
+  - name: Check for specific processor
+    command: echo "{{ regionserver_status.stdout }}" | grep -w "HRegionServer"
+    register: specific_processor_check
+    ignore_errors: true
+
+  - name: Run command if specific processor is not found
+    command: kubectl exec pods/hadoop-hadoop-hdfs-dn-0 -c hbase-regionserver -- /opt/hbase/bin/hbase-daemon.sh start regionserver
+    when: "'HRegionServer' not in regionserver_status.stdout"

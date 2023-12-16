@@ -1,0 +1,26 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: hbase-check-cronjob
+spec:
+  schedule: "*/3 * * * *"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          imagePullSecrets:
+          - name: regcred
+          containers:
+          - name: hbase-check
+            image: mdc1-sfcr.safaricomet.net/bigdata/ansible:test11   
+            command: ["ansible-playbook"]
+            args: ["/hbase_test2.yaml", "-e", "host=127.0.0.1"]
+            resources:
+              requests:
+                memory: "64Mi"
+                cpu: "250m"
+              limits:
+                memory: "256Mi"
+                cpu: "500m"
+          restartPolicy: OnFailure

@@ -1,0 +1,1 @@
+*/30 * * * * ansible-playbook /home/ephrem.sisay@safaricomet.net/ansible-kubernetes/playbooks/hbase_test2.yaml  -e host=127.0.0.1

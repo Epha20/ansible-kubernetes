@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ansible-job
+spec:
+  schedule: "*/3 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: ansible
+            image: mdc1-sfcr.safaricomet.net/bigdata/busybox:latest
+            imagePullPolicy: IfNotPresent
+            command: ["ansible-playbook"]
+            args: ["/home/ephrem.sisay@safaricomet.net/ansible-kubernetes/playbooks/hbase_test2.yaml  -e host=127.0.0.1"]
+          restartPolicy: OnFailure
+          resources:
+            limits:
+	      cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 500Mi
